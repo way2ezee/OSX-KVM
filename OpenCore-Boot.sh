@@ -18,12 +18,12 @@ MY_OPTIONS="+pcid,+ssse3,+sse4.2,+popcnt,+avx,+aes,+xsave,+xsaveopt,check"
 # This script works for Big Sur, Catalina, Mojave, and High Sierra. Tested with
 # macOS 10.15.6, macOS 10.14.6, and macOS 10.13.6
 
-ALLOCATED_RAM="3072" # MiB
+ALLOCATED_RAM="16348" # MiB
 CPU_SOCKETS="1"
-CPU_CORES="2"
-CPU_THREADS="4"
+CPU_CORES="4"
+CPU_THREADS="8"
 
-REPO_PATH="."
+REPO_PATH="$(dirname "$0")"
 OVMF_DIR="."
 
 # This causes high cpu usage on the *host* side
@@ -49,11 +49,12 @@ args=(
   -device ide-hd,bus=sata.2,drive=OpenCoreBoot
   -device ide-hd,bus=sata.3,drive=InstallMedia
   -drive id=InstallMedia,if=none,file="$REPO_PATH/BaseSystem.img",format=raw
-  -drive id=MacHDD,if=none,file="$REPO_PATH/mac_hdd_ng.img",format=qcow2
+  -drive id=MacHDD,if=none,file="$REPO_PATH/mac_hdd_ng.raw",format=raw
   -device ide-hd,bus=sata.4,drive=MacHDD
-  -netdev tap,id=net0,ifname=tap0,script=no,downscript=no -device vmxnet3,netdev=net0,id=net0,mac=52:54:00:c9:18:27
+#  -netdev tap,id=net0,ifname=tap0,script=no,downscript=no -device vmxnet3,netdev=net0,id=net0,mac=52:54:00:c9:18:27
+  -netdev tap,id=net0,ifname=tap0,script=no,downscript=no -device e1000-82545em,netdev=net0,id=net0,mac=52:54:00:AB:84:50
   -monitor stdio
   -vga vmware
 )
 
-qemu-system-x86_64 "${args[@]}"
+qemu-system-x86_64 "${args[@]}" &
